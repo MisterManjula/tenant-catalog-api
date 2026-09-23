@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,8 +19,23 @@ class ProductController extends Controller
         return ProductResource::collection(Product::query()->orderBy('id')->paginate());
     }
 
+    /**
+     * Answers 201: the resource response detects a freshly created model.
+     */
+    public function store(StoreProductRequest $request): ProductResource
+    {
+        return new ProductResource(Product::create($request->validated()));
+    }
+
     public function show(Product $product): ProductResource
     {
+        return new ProductResource($product);
+    }
+
+    public function update(UpdateProductRequest $request, Product $product): ProductResource
+    {
+        $product->update($request->validated());
+
         return new ProductResource($product);
     }
 }

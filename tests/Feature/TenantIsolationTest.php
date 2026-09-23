@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Tenancy\MissingTenantContext;
 use Laravel\Sanctum\Sanctum;
 
+use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
+use function Pest\Laravel\postJson;
 
 it('answers 404, not 403, for a product of another tenant', function () {
     $alder = Tenant::factory()->create(['name' => 'Alder Grill']);
@@ -33,18 +35,20 @@ it('never lists products of another tenant', function () {
         ->toEqualCanonicalizing($alderSkus);
 });
 
-it('takes tenant_id from the context, never from the input', function () {
+it('ignores tenant_id in the payload and takes it from the context', function () {
     $alder = Tenant::factory()->create(['name' => 'Alder Grill']);
     $birch = Tenant::factory()->create(['name' => 'Birch Pizza']);
 
-    $product = asTenant($alder, fn () => Product::create([
+    Sanctum::actingAs(User::factory()->for($alder)->create());
+
+    $id = postJson('/api/products', [
         'tenant_id' => $birch->id,
         'sku' => 'ALD-001',
         'name' => 'Smash burger',
         'price_cents' => 1250,
-    ]));
+    ])->assertCreated()->json('data.id');
 
-    expect($product->tenant_id)->toBe($alder->id);
+    assertDatabaseHas('products', ['id' => $id, 'tenant_id' => $alder->id]);
 });
 
 // The most important test in the repo: a query with no tenant context must fail
