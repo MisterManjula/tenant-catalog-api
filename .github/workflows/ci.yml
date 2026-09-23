@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/pint --test
+      - run: vendor/bin/phpstan analyse --memory-limit=1G
+
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: catalog_test
+          POSTGRES_USER: catalog
+          POSTGRES_PASSWORD: secret
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U catalog"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: catalog_test
+      DB_USERNAME: catalog
+      DB_PASSWORD: secret
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, redis
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - run: vendor/bin/pest
+
+  # Turns "docker compose up works" from a promise into a verified fact.
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker compose up -d --build
+      - name: Wait for /up
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8080/up && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        run: docker compose down -v
