@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Channel;
-use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Tenant-scoped: tenant_id comes from the TenantContext, so create these inside
+ * TenantContext::run().
+ *
  * @extends Factory<Channel>
  */
 class ChannelFactory extends Factory
@@ -19,7 +21,6 @@ class ChannelFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => Tenant::factory(),
             'name' => fake()->randomElement(['app', 'kiosk', 'delivery']),
             'webhook_url' => fake()->url(),
             'active' => true,

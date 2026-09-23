@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToTenant;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * tenant_id is never fillable: it comes from the tenant context, not from the request.
@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     /**
      * @var array<string, mixed>
@@ -33,13 +33,5 @@ class Product extends Model
             'price_cents' => 'integer',
             'active' => 'boolean',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Tenant, $this>
-     */
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
     }
 }

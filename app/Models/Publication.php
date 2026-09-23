@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['withheld'])]
 class Publication extends Model
 {
+    use BelongsToTenant;
+
     public const UPDATED_AT = null;
 
     /**
@@ -30,14 +32,6 @@ class Publication extends Model
         return [
             'withheld' => 'array',
         ];
-    }
-
-    /**
-     * @return BelongsTo<Tenant, $this>
-     */
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
     }
 
     /**

@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Product;
-use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Tenant-scoped: tenant_id comes from the TenantContext, so create these inside
+ * TenantContext::run().
+ *
  * @extends Factory<Product>
  */
 class ProductFactory extends Factory
@@ -19,7 +21,6 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => Tenant::factory(),
             'sku' => fake()->unique()->bothify('SKU-####-??'),
             'name' => fake()->words(2, true),
             'price_cents' => fake()->numberBetween(100, 5000),
