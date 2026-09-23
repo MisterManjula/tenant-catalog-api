@@ -1,0 +1,24 @@
+.git
+.github
+.idea
+.vscode
+Brief
+vendor
+node_modules
+
+# Local environment; containers get their config from .env.docker via env_file.
+.env
+.env.backup
+.env.production
+
+# Local runtime artifacts; keep the directory skeleton (.gitignore files).
+bootstrap/cache/*.php
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+!storage/framework/sessions/.gitignore
+storage/framework/testing/*
+storage/framework/views/*
+!storage/framework/views/.gitignore
+.phpunit.cache
+.phpunit.result.cache
