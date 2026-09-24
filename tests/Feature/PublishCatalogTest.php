@@ -19,7 +19,7 @@ it('withholds products with an unresolved price instead of publishing them', fun
 
     Sanctum::actingAs(User::factory()->for($alder)->create());
 
-    $response = postJson('/api/publications')
+    $response = postJson('/api/publications', [], ['Idempotency-Key' => 'publish-1'])
         ->assertCreated()
         ->assertJsonPath('data.withheld', ['ALD-003']);
 

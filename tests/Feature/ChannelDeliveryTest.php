@@ -47,7 +47,7 @@ it('queues exactly one delivery job per active channel, even if the listener run
     asTenant($birch, fn () => Channel::factory()->create());
 
     Sanctum::actingAs(User::factory()->for($alder)->create());
-    postJson('/api/publications')->assertCreated();
+    postJson('/api/publications', [], ['Idempotency-Key' => 'publish-1'])->assertCreated();
 
     Queue::assertPushed(DeliverPublication::class, 3);
 

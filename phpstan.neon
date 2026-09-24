@@ -3,6 +3,9 @@ includes:
 
 parameters:
     level: max
+    # Read each model's casts() body, so casted attributes (enums, arrays) get their
+    # real types instead of the column type from the migration.
+    parseModelCastsMethod: true
     paths:
         - app
         - bootstrap/app.php
