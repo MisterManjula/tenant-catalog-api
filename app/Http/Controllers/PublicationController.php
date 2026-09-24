@@ -15,6 +15,6 @@ class PublicationController extends Controller
 
     public function show(Publication $publication): PublicationResource
     {
-        return new PublicationResource($publication->load('items'));
+        return new PublicationResource($publication->load(['items', 'deliveries']));
     }
 }

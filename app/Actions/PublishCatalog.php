@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Events\CatalogPublished;
 use App\Models\Product;
 use App\Models\Publication;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,9 @@ class PublishCatalog
                     'price_cents' => $product->price_cents,
                 ])->all(),
             );
+
+            // Held until the transaction commits (ShouldDispatchAfterCommit).
+            CatalogPublished::dispatch($publication->tenant_id, $publication->id);
 
             return $publication;
         });

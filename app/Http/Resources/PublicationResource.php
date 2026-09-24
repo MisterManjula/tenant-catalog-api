@@ -22,6 +22,7 @@ class PublicationResource extends JsonResource
             // SKUs left out because their price was not resolved: the caller must see them.
             'withheld' => $this->withheld,
             'items' => PublicationItemResource::collection($this->whenLoaded('items')),
+            'deliveries' => ChannelDeliveryResource::collection($this->whenLoaded('deliveries')),
         ];
     }
 }
